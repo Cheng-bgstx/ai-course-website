@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程详情 - AIGC学院</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0B1426 0%, #1E293B 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-nav {
+            background: rgba(11, 20, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+        
+        .progress-panel {
+            background: rgba(30, 58, 138, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+        }
+        
+        .content-panel {
+            background: rgba(30, 58, 138, 0.05);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 15px;
+        }
+        
+        .ai-assistant {
+            background: rgba(30, 58, 138, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+        }
+        
+        .circuit-node {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6B7280;
+            border: 2px solid #374151;
+            transition: all 0.3s ease;
+        }
+        
+        .circuit-node.active {
+            background: #00D4FF;
+            border-color: #00D4FF;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        .circuit-line {
+            width: 2px;
+            background: linear-gradient(to bottom, #6B7280, #00D4FF);
+            margin: 0 auto;
+        }
+        
+        .video-player {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .code-editor {
+            background: #1E1E1E;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .chat-message {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .chat-message.user {
+            background: rgba(30, 58, 138, 0.2);
+            margin-left: 20px;
+        }
+        
+        .chat-message.ai {
+            margin-right: 20px;
+        }
+        
+        .lesson-item {
+            background: rgba(30, 58, 138, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lesson-item:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            background: rgba(30, 58, 138, 0.2);
+        }
+        
+        .lesson-item.active {
+            border-color: #00D4FF;
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        .lesson-item.completed {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .energy-bar {
+            width: 8px;
+            background: rgba(30, 58, 138, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .energy-fill {
+            background: linear-gradient(to top, #00D4FF, #0EA5E9);
+            width: 100%;
+            transition: height 0.5s ease;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 w-full z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-bold glow-text">AIGC学院</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-white hover:text-cyan-400 transition-colors">首页</a>
+                <a href="courses.html" class="text-white hover:text-cyan-400 transition-colors">课程</a>
+                <a href="about.html" class="text-white hover:text-cyan-400 transition-colors">关于我们</a>
+            </div>
+            <button class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="pt-20 px-6 min-h-screen">
+        <div class="max-w-7xl mx-auto">
+            <!-- Course Header -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold glow-text mb-2" id="course-title">深度学习基础</h1>
+                        <p class="text-gray-300" id="course-subtitle">深入理解神经网络和深度学习原理</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-cyan-400" id="overall-progress">60%</div>
+                        <div class="text-sm text-gray-400">整体进度</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Three Column Layout -->
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Left Panel - Progress Navigation -->
+                <div class="col-span-12 lg:col-span-2">
+                    <div class="progress-panel p-6 sticky top-24">
+                        <h3 class="text-lg font-bold mb-6 text-cyan-400">学习进度</h3>
+                        
+                        <!-- Circuit Progress -->
+                        <div class="flex flex-col items-center" id="circuit-progress">
+                            <!-- Progress nodes will be generated by JavaScript -->
+                        </div>
+                        
+                        <!-- Energy Bar -->
+                        <div class="mt-8">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-gray-400">能量值</span>
+                                <span class="text-sm text-cyan-400" id="energy-value">75%</span>
+                            </div>
+                            <div class="energy-bar h-32 mx-auto">
+                                <div class="energy-fill h-3/4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Middle Panel - Content Area -->
+                <div class="col-span-12 lg:col-span-7">
+                    <div class="content-panel p-6">
+                        <!-- Video Player -->
+                        <div class="video-player aspect-video mb-6 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-6xl mb-4">🎥</div>
+                                <div class="text-xl text-gray-300">神经网络基础概念</div>
+                                <div class="text-sm text-gray-400 mt-2">时长: 15:30</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lesson Navigation -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-4">课程章节</h3>
+                            <div id="lesson-list">
+                                <!-- Lessons will be generated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Code Editor -->
+                        <div class="code-editor mb-6">
+                            <div class="bg-gray-800 px-4 py-2 flex justify-between items-center">
+                                <div class="text-sm text-gray-400">Python 代码编辑器</div>
+                                <button id="run-code" class="bg-cyan-500 text-white px-4 py-1 rounded text-sm hover:bg-cyan-600">
+                                    运行代码
+                                </button>
+                            </div>
+                            <div id="code-editor" style="height: 300px;"></div>
+                        </div>
+                        
+                        <!-- Code Output -->
+                        <div class="bg-gray-900 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">输出结果</div>
+                            <div id="code-output" class="text-green-400 font-mono text-sm">
+                                点击"运行代码"查看结果...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel - AI Assistant -->
+                <div class="col-span-12 lg:col-span-3">
+                    <div class="ai-assistant p-6 sticky top-24">
+                        <h3 class="text-lg font-bold mb-6 text-cyan-400">AI学习助手</h3>
+                        
+                        <!-- Chat Messages -->
+                        <div class="mb-4 h-64 overflow-y-auto" id="chat-messages">
+                            <div class="chat-message ai">
+                                <div class="text-sm">你好！我是你的AI学习助手。在学习过程中有任何问题，都可以问我哦！</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Input -->
+                        <div class="flex gap-2">
+                            <input type="text" id="chat-input" placeholder="输入你的问题..." 
+                                   class="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-400">
+                            <button id="send-message" class="bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600">
+                                发送
+                            </button>
+                        </div>
+                        
+                        <!-- Quick Questions -->
+                        <div class="mt-6">
+                            <div class="text-sm text-gray-400 mb-3">常见问题</div>
+                            <div class="space-y-2">
+                                <button class="quick-question w-full text-left text-sm bg-gray-800 hover:bg-gray-700 p-2 rounded transition-colors">
+                                    什么是神经网络？
+                                </button>
+                                <button class="quick-question w-full text-left text-sm bg-gray-800 hover:bg-gray-700 p-2 rounded transition-colors">
+                                    深度学习和机器学习的区别？
+                                </button>
+                                <button class="quick-question w-full text-left text-sm bg-gray-800 hover:bg-gray-700 p-2 rounded transition-colors">
+                                    如何训练一个神经网络？
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-6 mt-20">
+        <div class="max-w-4xl mx-auto text-center text-gray-400">
+            © 2024 AIGC学院. 保留所有权利.
+        </div>
+    </footer>
+    
+    <script>
+        // Course data
+        const courseData = {
+            id: "dl-fundamentals",
+            title: "深度学习基础",
+            subtitle: "深入理解神经网络和深度学习原理",
+            progress: 60,
+            lessons: [
+                { id: 1, title: "神经网络简介", duration: "15:30", completed: true, active: false },
+                { id: 2, title: "感知机模型", duration: "18:45", completed: true, active: false },
+                { id: 3, title: "多层神经网络", duration: "22:15", completed: true, active: true },
+                { id: 4, title: "反向传播算法", duration: "25:30", completed: false, active: false },
+                { id: 5, title: "激活函数详解", duration: "20:00", completed: false, active: false },
+                { id: 6, title: "损失函数与优化", duration: "28:45", completed: false, active: false },
+                { id: 7, title: "实战项目：手写数字识别", duration: "35:20", completed: false, active: false }
+            ]
+        };
+        
+        let monacoEditor;
+        
+        // Initialize the page
+        function initPage() {
+            updateCourseInfo();
+            initProgressCircuit();
+            initLessonList();
+            initCodeEditor();
+            initChatAssistant();
+        }
+        
+        // Update course information
+        function updateCourseInfo() {
+            document.getElementById('course-title').textContent = courseData.title;
+            document.getElementById('course-subtitle').textContent = courseData.subtitle;
+            document.getElementById('overall-progress').textContent = courseData.progress + '%';
+            document.getElementById('energy-value').textContent = courseData.progress + '%';
+        }
+        
+        // Initialize progress circuit
+        function initProgressCircuit() {
+            const container = document.getElementById('circuit-progress');
+            const completedLessons = courseData.lessons.filter(l => l.completed).length;
+            const totalLessons = courseData.lessons.length;
+            
+            courseData.lessons.forEach((lesson, index) => {
+                // Create node
+                const node = document.createElement('div');
+                node.className = `circuit-node ${lesson.completed ? 'active' : ''}`;
+                node.title = lesson.title;
+                
+                // Create line (except for last node)
+                if (index < totalLessons - 1) {
+                    const line = document.createElement('div');
+                    line.className = 'circuit-line h-8';
+                    container.appendChild(line);
+                }
+                
+                container.appendChild(node);
+            });
+        }
+        
+        // Initialize lesson list
+        function initLessonList() {
+            const container = document.getElementById('lesson-list');
+            
+            courseData.lessons.forEach(lesson => {
+                const lessonElement = document.createElement('div');
+                lessonElement.className = `lesson-item ${lesson.completed ? 'completed' : ''} ${lesson.active ? 'active' : ''}`;
+                
+                lessonElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full mr-3 flex items-center justify-center text-xs font-bold ${
+                                lesson.completed ? 'bg-green-500 text-white' : 
+                                lesson.active ? 'bg-cyan-500 text-white' : 'bg-gray-600 text-gray-300'
+                            }">
+                                ${lesson.completed ? '✓' : lesson.id}
+                            </div>
+                            <div>
+                                <div class="font-semibold">${lesson.title}</div>
+                                <div class="text-sm text-gray-400">${lesson.duration}</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            ${lesson.completed ? '已完成' : lesson.active ? '进行中' : '未开始'}
+                        </div>
+                    </div>
+                `;
+                
+                lessonElement.addEventListener('click', () => selectLesson(lesson));
+                container.appendChild(lessonElement);
+            });
+        }
+        
+        // Select lesson
+        function selectLesson(lesson) {
+            // Update active lesson
+            courseData.lessons.forEach(l => l.active = false);
+            lesson.active = true;
+            
+            // Update UI
+            document.querySelectorAll('.lesson-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if (courseData.lessons[index].active) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update video player title
+            document.querySelector('.video-player .text-xl').textContent = lesson.title;
+            document.querySelector('.video-player .text-sm').textContent = `时长: ${lesson.duration}`;
+        }
+        
+        // Initialize code editor
+        function initCodeEditor() {
+            require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' } });
+            
+            require(['vs/editor/editor.main'], function () {
+                monacoEditor = monaco.editor.create(document.getElementById('code-editor'), {
+                    value: `# 简单的神经网络示例
+import numpy as np
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# 输入数据
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
+
+# 初始化权重
+np.random.seed(42)
+weights0 = 2 * np.random.random((2, 4)) - 1
+weights1 = 2 * np.random.random((4, 1)) - 1
+
+# 训练过程
+for i in range(1000):
+    # 前向传播
+    layer0 = X
+    layer1 = sigmoid(np.dot(layer0, weights0))
+    layer2 = sigmoid(np.dot(layer1, weights1))
+    
+    # 反向传播
+    layer2_error = y - layer2
+    layer2_delta = layer2_error * sigmoid_derivative(layer2)
+    
+    layer1_error = layer2_delta.dot(weights1.T)
+    layer1_delta = layer1_error * sigmoid_derivative(layer1)
+    
+    # 更新权重
+    weights1 += layer1.T.dot(layer2_delta)
+    weights0 += layer0.T.dot(layer1_delta)
+
+print("训练完成！")
+print("输出结果:")
+print(layer2)`,
+                    language: 'python',
+                    theme: 'vs-dark',
+                    fontSize: 14,
+                    minimap: { enabled: false }
+                });
+            });
+        }
+        
+        // Run code
+        document.getElementById('run-code').addEventListener('click', function() {
+            const code = monacoEditor.getValue();
+            const output = document.getElementById('code-output');
+            
+            output.innerHTML = '正在执行代码...';
+            
+            // Simulate code execution
+            setTimeout(() => {
+                output.innerHTML = `训练完成！<br>
+                                   输出结果:<br>
+                                   [[0.012]<br>
+                                   [0.987]<br>
+                                   [0.986]<br>
+                                   [0.015]]<br>
+                                   <span class="text-green-300">✓ 成功实现XOR逻辑门</span>`;
+            }, 1500);
+        });
+        
+        // Initialize chat assistant
+        function initChatAssistant() {
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-message');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                // Add user message
+                addChatMessage(message, 'user');
+                chatInput.value = '';
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    const response = getAIResponse(message);
+                    addChatMessage(response, 'ai');
+                }, 1000);
+            }
+            
+            function addChatMessage(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                messageDiv.innerHTML = `<div class="text-sm">${message}</div>`;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function getAIResponse(message) {
+                const responses = {
+                    '什么是神经网络？': '神经网络是一种模仿人脑神经元工作方式的计算模型，由多个相互连接的节点组成，能够学习和识别复杂的模式。',
+                    '深度学习和机器学习的区别？': '深度学习是机器学习的一个子集，它使用深度神经网络来处理更复杂的任务，如图像识别和自然语言处理。',
+                    '如何训练一个神经网络？': '训练神经网络包括：1)准备数据集 2)定义网络结构 3)选择损失函数 4)使用反向传播算法优化权重 5)验证模型性能。'
+                };
+                
+                return responses[message] || '这是一个很好的问题！让我为你详细解释一下...';
+            }
+            
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            // Quick questions
+            document.querySelectorAll('.quick-question').forEach(button => {
+                button.addEventListener('click', () => {
+                    chatInput.value = button.textContent.trim();
+                    sendMessage();
+                });
+            });
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

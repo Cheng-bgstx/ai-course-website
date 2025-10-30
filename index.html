@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>解锁AIGC新纪元 - 你的第一个神经网络</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0B1426 0%, #1E293B 100%);
+            overflow-x: hidden;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+        
+        .pulse-button {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .pulse-button:hover {
+            animation: none;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid #00D4FF;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #00D4FF; }
+        }
+        
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .glass-nav {
+            background: rgba(11, 20, 38, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .feature-card {
+            background: rgba(30, 58, 138, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+        
+        .ai-quote {
+            background: rgba(30, 58, 138, 0.2);
+            border-left: 4px solid #00D4FF;
+        }
+        
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Neural Network Background -->
+    <div id="neural-bg" class="neural-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 w-full z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-bold glow-text">AIGC学院</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-white hover:text-cyan-400 transition-colors">首页</a>
+                <a href="courses.html" class="text-white hover:text-cyan-400 transition-colors">课程</a>
+                <a href="about.html" class="text-white hover:text-cyan-400 transition-colors">关于我们</a>
+            </div>
+            <button class="md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center pt-20 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-6xl md:text-8xl font-bold mb-6 glow-text" data-splitting>
+                解锁AIGC新纪元
+            </h1>
+            <div class="text-xl md:text-2xl text-cyan-200 mb-8 max-w-3xl mx-auto">
+                <span id="typewriter" class="typewriter"></span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+                <button onclick="window.location.href='courses.html'" class="pulse-button bg-transparent border-2 border-cyan-400 text-cyan-400 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-cyan-400 hover:text-white transition-all duration-300">
+                    开始探索课程
+                </button>
+                <button class="bg-cyan-500 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-cyan-600 transition-all duration-300">
+                    观看演示
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 scroll-reveal">
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">10K+</div>
+                    <div class="text-gray-300">活跃学员</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">50+</div>
+                    <div class="text-gray-300">精品课程</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-cyan-400 mb-2">95%</div>
+                    <div class="text-gray-300">满意度</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="py-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-16 glow-text scroll-reveal">为什么选择我们</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card p-8 rounded-xl scroll-reveal">
+                    <div class="text-cyan-400 text-4xl mb-4">🧠</div>
+                    <h3 class="text-xl font-bold mb-4">前沿AI技术</h3>
+                    <p class="text-gray-300">掌握最新的AIGC技术，包括GPT、Stable Diffusion、Midjourney等热门工具</p>
+                </div>
+                <div class="feature-card p-8 rounded-xl scroll-reveal">
+                    <div class="text-cyan-400 text-4xl mb-4">🎯</div>
+                    <h3 class="text-xl font-bold mb-4">实战项目</h3>
+                    <p class="text-gray-300">通过真实项目练习，从理论到实践，打造完整的AI作品集</p>
+                </div>
+                <div class="feature-card p-8 rounded-xl scroll-reveal">
+                    <div class="text-cyan-400 text-4xl mb-4">👨‍🏫</div>
+                    <h3 class="text-xl font-bold mb-4">专业导师</h3>
+                    <p class="text-gray-300">来自顶尖科技公司的AI专家，提供一对一指导和答疑</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- AI Quote Footer -->
+    <footer class="py-12 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="ai-quote p-6 rounded-lg text-center">
+                <div class="text-cyan-400 text-sm mb-2">AI每日箴言</div>
+                <div id="ai-quote" class="text-lg italic">"人工智能是新的电力，它将改变一切。" - 吴恩达</div>
+            </div>
+            <div class="text-center text-gray-400 mt-8">
+                © 2024 AIGC学院. 保留所有权利.
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+</body>
+</html>
